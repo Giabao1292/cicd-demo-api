@@ -14,6 +14,14 @@ jobs:
     name: Build React app
     runs-on: ubuntu-latest
     steps:
+      - name: Show runner resources
+        run: |
+          echo "CPU:"
+          nproc
+          echo "RAM:"
+          free -h
+          echo "Disk:"
+          df -h /
       - name: Checkout source
         uses: actions/checkout@v6
 
