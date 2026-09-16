@@ -1,0 +1,15 @@
+:root { --ink:#14131e; --violet:#6246ea; --mint:#d5fa72; --paper:#f6f4ff; --muted:#67647b; }
+* { box-sizing:border-box; }
+body { margin:0; min-height:100vh; color:var(--ink); background:radial-gradient(circle at 82% 12%, #dcd7ff 0 11%, transparent 30%),var(--paper); font-family:ui-rounded, "SF Pro Rounded", "Avenir Next", system-ui, sans-serif; }
+main { width:min(100% - 40px, 920px); margin:0 auto; padding:clamp(72px,13vw,150px) 0 72px; }
+.eyebrow { margin:0 0 18px; color:var(--violet); font-size:.78rem; font-weight:800; letter-spacing:.13em; }
+h1 { max-width:760px; margin:0; font-size:clamp(3.1rem,9vw,6.9rem); line-height:.91; letter-spacing:-.075em; }
+h1 em { color:var(--violet); font-style:normal; }
+.intro { max-width:500px; margin:28px 0 54px; color:var(--muted); font-size:1.1rem; line-height:1.65; }
+.pipeline { display:flex; align-items:stretch; gap:14px; }
+.pipeline article { flex:1; min-height:170px; padding:19px; border:1px solid #dedaf2; border-radius:22px; background:#fff; box-shadow:0 10px 22px #4d3d9110; display:flex; flex-direction:column; justify-content:space-between; }
+.pipeline span { color:var(--violet); font-size:.75rem; font-weight:800; letter-spacing:.09em; }.pipeline strong { font-size:1.35rem; letter-spacing:-.04em; }.pipeline small { color:var(--muted); line-height:1.35; }
+.pipeline i { align-self:center; color:var(--violet); font-size:1.5rem; font-style:normal; }
+button { margin-top:42px; border:0; border-radius:14px; padding:16px 21px; background:var(--ink); color:white; cursor:pointer; font:700 1rem inherit; transition:transform .2s, background .2s; } button:hover { background:var(--violet); transform:translateY(-3px); } button span { color:var(--mint); margin-left:8px; }
+#message { min-height:1.5em; color:var(--violet); font-weight:700; } footer { width:min(100% - 40px, 920px); margin:0 auto; padding:22px 0 40px; color:var(--muted); font-size:.8rem; }
+@media (max-width:640px) { .pipeline { flex-direction:column; }.pipeline i { transform:rotate(90deg); }.pipeline article { min-height:120px; } }
