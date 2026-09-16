@@ -18,7 +18,7 @@ export default [
     rules: { ...reactHooks.configs.flat.recommended.rules, ...reactRefresh.configs.vite.rules },
   },
   {
-    files: ['scripts/**/*.mjs', 'tests/**/*.mjs'],
+    files: ['scripts/**/*.mjs', 'tests/**/*.mjs', 'vite.config.js'],
     languageOptions: { ecmaVersion: 'latest', globals: globals.node, sourceType: 'module' },
   },
 ];
