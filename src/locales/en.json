@@ -1,0 +1,68 @@
+{
+  "completed": "Completed",
+  "completedCount": "{{done}} / {{total}} milestones completed",
+  "footer": "Built and deployed with GitHub Actions.",
+  "intro": "Every completed step gives this project a new change, a new commit, and a newly deployed version.",
+  "label": "CI/CD LEARNING JOURNAL",
+  "languageSelector": "Choose language",
+  "live": "Deploying from GitHub Pages",
+  "pipeline": {
+    "branch": {
+      "detail": "New code starts outside main.",
+      "title": "Feature branch"
+    },
+    "ciCheck": {
+      "detail": "GitHub Actions installs dependencies and builds React.",
+      "title": "CI checks"
+    },
+    "deploy": {
+      "detail": "The main push workflow creates a production build.",
+      "title": "CD deploy"
+    },
+    "merge": {
+      "detail": "Unlocked only after Build React app is green.",
+      "title": "Merge main"
+    },
+    "pages": {
+      "detail": "The static website updates for visitors.",
+      "title": "GitHub Pages"
+    },
+    "pullRequest": {
+      "detail": "Submit the change for review and checks.",
+      "title": "Pull request"
+    }
+  },
+  "pipelineCaption": "PR is checked first; only main is deployed",
+  "pipelineRule": "No green CI, no merge. Only a PR merged into main can trigger the GitHub Pages CD deployment.",
+  "pipelineRuleLabel": "Rule:",
+  "pipelineTitle": "How does the current pipeline work?",
+  "planned": "Up next",
+  "principle": "Do not learn CI/CD only from diagrams. Every concept must have a commit, workflow run, or real deployment as proof.",
+  "principleTitle": "The rule of this lab",
+  "roadmap": "Hands-on roadmap",
+  "steps": {
+    "ci": {
+      "detail": "GitHub Actions checks and builds React whenever code changes.",
+      "title": "Continuous Integration"
+    },
+    "github": {
+      "detail": "Push source to main and follow the commit history.",
+      "title": "GitHub & repository"
+    },
+    "pages": {
+      "detail": "When the build passes, GitHub Pages deploys a new version.",
+      "title": "Continuous Deployment"
+    },
+    "quality": {
+      "detail": "Add linting, testing, and branch protection before merges.",
+      "title": "Quality gate"
+    },
+    "release": {
+      "detail": "Add versions, changelogs, and explicit deployment environments.",
+      "title": "Release workflow"
+    }
+  },
+  "themeToggle": "Toggle light or dark theme",
+  "titleA": "Learn by",
+  "titleB": "building."
+}

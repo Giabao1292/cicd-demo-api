@@ -1,0 +1,68 @@
+{
+  "completed": "Hoàn thành",
+  "completedCount": "{{done}} / {{total}} mốc đã hoàn thành",
+  "footer": "Được xây và deploy cùng GitHub Actions.",
+  "intro": "Mỗi lần hoàn thành một bước, dự án này nhận thêm một thay đổi, một commit và một bản deploy mới.",
+  "label": "NHẬT KÝ HỌC CI/CD",
+  "languageSelector": "Chọn ngôn ngữ",
+  "live": "Đang deploy từ GitHub Pages",
+  "pipeline": {
+    "branch": {
+      "detail": "Code mới bắt đầu ngoài main.",
+      "title": "Feature branch"
+    },
+    "ciCheck": {
+      "detail": "GitHub Actions cài dependencies và build React.",
+      "title": "CI checks"
+    },
+    "deploy": {
+      "detail": "Workflow push main tạo bản production.",
+      "title": "CD deploy"
+    },
+    "merge": {
+      "detail": "Chỉ mở khóa khi Build React app xanh.",
+      "title": "Merge main"
+    },
+    "pages": {
+      "detail": "Website tĩnh được cập nhật cho người xem.",
+      "title": "GitHub Pages"
+    },
+    "pullRequest": {
+      "detail": "Gửi thay đổi để review và kiểm tra.",
+      "title": "Pull request"
+    }
+  },
+  "pipelineCaption": "PR được kiểm tra trước, chỉ main được deploy",
+  "pipelineRule": "Không có CI xanh thì không merge được. Chỉ khi PR được merge vào main, CD mới deploy GitHub Pages.",
+  "pipelineRuleLabel": "Quy tắc:",
+  "pipelineTitle": "Pipeline hiện tại hoạt động thế nào?",
+  "planned": "Sắp tới",
+  "principle": "Không học CI/CD chỉ bằng sơ đồ. Mỗi khái niệm cần có một commit, workflow run hoặc deploy thật để kiểm chứng.",
+  "principleTitle": "Quy tắc của lab này",
+  "roadmap": "Roadmap thực hành",
+  "steps": {
+    "ci": {
+      "detail": "GitHub Actions kiểm tra và build React mỗi khi code thay đổi.",
+      "title": "Continuous Integration"
+    },
+    "github": {
+      "detail": "Push source lên main và theo dõi lịch sử commit.",
+      "title": "GitHub & repository"
+    },
+    "pages": {
+      "detail": "Build pass thì GitHub Pages tự deploy bản mới.",
+      "title": "Continuous Deployment"
+    },
+    "quality": {
+      "detail": "Thêm lint, test và branch protection trước khi merge.",
+      "title": "Quality gate"
+    },
+    "release": {
+      "detail": "Thêm version, changelog và môi trường deploy rõ ràng.",
+      "title": "Release workflow"
+    }
+  },
+  "themeToggle": "Chuyển giao diện sáng hoặc tối",
+  "titleA": "Học bằng cách",
+  "titleB": "xây thật."
+}

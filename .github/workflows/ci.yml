@@ -4,8 +4,6 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
-  pull_request:
-    branches: [main]
 
 permissions:
   contents: read
@@ -34,6 +32,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Validate translation files
+        run: npm run i18n:check
 
       - name: Build production bundle
         run: npm run build
