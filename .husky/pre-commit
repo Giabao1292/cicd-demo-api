@@ -1,0 +1,3 @@
+npm run i18n:sort
+git add src/locales/en.json src/locales/vi.json
+npm run i18n:check
