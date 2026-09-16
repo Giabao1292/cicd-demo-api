@@ -51,3 +51,20 @@ jobs:
 
       - name: Build production bundle
         run: npm run build
+
+      - name: Build Docker image
+        run: docker build --tag cicd-learning-journal:${{ github.sha }} .
+
+      - name: Smoke test Docker container
+        run: |
+          docker run --detach --name cicd-smoke-test --publish 8080:80 cicd-learning-journal:${{ github.sha }}
+          for attempt in 1 2 3 4 5; do
+            curl --fail --silent --show-error http://localhost:8080/ && exit 0
+            sleep 2
+          done
+          docker logs cicd-smoke-test
+          exit 1
+
+      - name: Clean up Docker container
+        if: always()
+        run: docker rm --force cicd-smoke-test || true

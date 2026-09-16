@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  base: '/cicd-demo-api/',
+  base: process.env.VITE_BASE_PATH || '/cicd-demo-api/',
   plugins: [react()],
   test: {
     coverage: {
