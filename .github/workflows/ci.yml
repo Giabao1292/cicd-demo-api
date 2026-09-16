@@ -37,7 +37,14 @@ jobs:
         run: npm run lint
 
       - name: Run unit tests
-        run: npm test
+        run: npm run test:coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage
+          retention-days: 7
 
       - name: Validate translation files
         run: npm run i18n:check
