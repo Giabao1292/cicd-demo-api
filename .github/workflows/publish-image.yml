@@ -22,6 +22,11 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v6
 
+      # GitHub runners are AMD64. QEMU lets Buildx also produce an ARM64
+      # variant for Docker Desktop on Apple Silicon.
+      - name: Set up QEMU for multi-platform builds
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -46,5 +51,6 @@ jobs:
         with:
           context: .
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
