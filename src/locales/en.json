@@ -1,6 +1,46 @@
 {
   "completed": "Completed",
   "completedCount": "{{done}} / {{total}} milestones completed",
+  "deploymentGuide": {
+    "caption": "Practice the real flow instead of memorizing it",
+    "currentState": "An app merge produces a new GHCR image, but local Kubernetes changes version only when the GitOps repository changes its image tag. Argo CD watches GitOps and syncs it; Slack reports the deployment result.",
+    "currentStateLabel": "IMPORTANT TRUTH",
+    "currentStateTitle": "The app repository does not deploy directly to Kubernetes",
+    "intro": "Use this checklist whenever you want to prove a React change travelled all the way from Pull Request to local Kubernetes and Slack.",
+    "steps": {
+      "argo": {
+        "action": "Open Argo CD. Automated sync is enabled, so do not press Sync; only Refresh when you want it to check Git immediately.",
+        "proof": "Argo shows Synced and Healthy, with a Deployment → 2 Pods graph.",
+        "title": "Argo auto-syncs"
+      },
+      "gitops": {
+        "action": "In cicd-demo-gitops, change the image in apps/frontend/deployment.yaml to the new tag and push main.",
+        "proof": "The new GitOps commit is the cluster's official desired state.",
+        "title": "Promote through GitOps"
+      },
+      "image": {
+        "action": "After merging, find the new commit tag in GHCR Packages; do not deploy latest.",
+        "proof": "The image has an immutable tag with linux/amd64 and linux/arm64 variants.",
+        "title": "Get the image tag"
+      },
+      "merge": {
+        "action": "Merge only when CI is green. A main merge deploys Pages and publishes the Docker image to GHCR.",
+        "proof": "The Deploy Pages and Publish Docker image GitHub Actions runs are green.",
+        "title": "Merge main"
+      },
+      "pr": {
+        "action": "Create a develop or feature branch, make a small UI or translation change, push it, then open a PR to main.",
+        "proof": "CI checks are green: lint, Vitest, i18n, build, Docker, Trivy, and smoke test.",
+        "title": "Create a Pull Request"
+      },
+      "slack": {
+        "action": "Wait for Argo to finish. The notification controller sends the deployment result through the Slack webhook.",
+        "proof": "The Slack channel receives a successful deployment or failed sync message.",
+        "title": "Receive the Slack notification"
+      }
+    },
+    "title": "Test the deployment flow end to end"
+  },
   "footer": "Built and deployed with GitHub Actions.",
   "interactivePipeline": {
     "caption": "The PR is checked first; only a main merge triggers CD",

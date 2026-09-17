@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const milestones = [['github', true], ['ci', true], ['pages', true], ['quality', true], ['release', false]];
+const milestones = [['github', true], ['ci', true], ['pages', true], ['quality', true], ['release', true]];
 const currentPipelineKeys = ['pullRequest', 'quality', 'i18n', 'reactBuild', 'dockerBuild', 'trivy', 'smokeTest', 'mergeMain', 'pagesDeploy', 'ghcrPublish'];
 const pipelineIcons = ['⇄', '✓', '文', '▣', '▦', '⌕', '◉', '↳', '◈', '⬡'];
+const deploymentTestKeys = ['pr', 'merge', 'image', 'gitops', 'argo', 'slack'];
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -77,6 +78,28 @@ export default function App() {
             </div>
           </article>
           <p className="pipeline-note"><b>{t('pipelineRuleLabel')}</b> {t('pipelineRule')}</p>
+        </section>
+
+        <section className="deployment-guide" aria-labelledby="deployment-guide-title">
+          <div className="section-heading">
+            <div><p className="eyebrow">HANDS-ON RUNBOOK</p><h2 id="deployment-guide-title">{t('deploymentGuide.title')}</h2></div>
+            <span>{t('deploymentGuide.caption')}</span>
+          </div>
+          <p className="deployment-guide-intro">{t('deploymentGuide.intro')}</p>
+          <div className="test-flow">
+            {deploymentTestKeys.map((key, index) => (
+              <article className="test-step" key={key}>
+                <span className="test-step-number">{String(index + 1).padStart(2, '0')}</span>
+                <h3>{t(`deploymentGuide.steps.${key}.title`)}</h3>
+                <p>{t(`deploymentGuide.steps.${key}.action`)}</p>
+                <small>{t(`deploymentGuide.steps.${key}.proof`)}</small>
+              </article>
+            ))}
+          </div>
+          <article className="truth-panel">
+            <div><p className="eyebrow">{t('deploymentGuide.currentStateLabel')}</p><h3>{t('deploymentGuide.currentStateTitle')}</h3></div>
+            <p>{t('deploymentGuide.currentState')}</p>
+          </article>
         </section>
 
         <section className="roadmap" aria-labelledby="roadmap-title">

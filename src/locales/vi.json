@@ -1,6 +1,46 @@
 {
   "completed": "Hoàn thành",
   "completedCount": "{{done}} / {{total}} mốc đã hoàn thành",
+  "deploymentGuide": {
+    "caption": "Thực hành đúng luồng, không cần nhớ bằng lòng",
+    "currentState": "App merge tạo image mới ở GHCR, nhưng local Kubernetes chỉ đổi phiên bản khi GitOps repo đổi image tag. Argo CD theo dõi GitOps repo và tự sync; Slack báo kết quả deploy.",
+    "currentStateLabel": "SỰ THẬT QUAN TRỌNG",
+    "currentStateTitle": "App repo không deploy thẳng vào Kubernetes",
+    "intro": "Dùng checklist này mỗi khi muốn kiểm chứng một thay đổi React đã đi hết từ Pull Request tới Kubernetes local và Slack.",
+    "steps": {
+      "argo": {
+        "action": "Mở Argo CD. Không cần bấm Sync vì auto-sync đã bật; chỉ Refresh nếu muốn Argo kiểm tra Git ngay.",
+        "proof": "Argo hiển thị Synced và Healthy; graph có Deployment → 2 Pod.",
+        "title": "Argo tự sync"
+      },
+      "gitops": {
+        "action": "Trong cicd-demo-gitops, đổi image trong apps/frontend/deployment.yaml sang tag mới rồi push main.",
+        "proof": "GitOps commit mới là desired state chính thức của cluster.",
+        "title": "Promote bằng GitOps"
+      },
+      "image": {
+        "action": "Sau merge, vào GHCR Packages lấy tag commit mới, không dùng latest để deploy.",
+        "proof": "Image có tag bất biến, bao gồm linux/amd64 và linux/arm64.",
+        "title": "Lấy image tag"
+      },
+      "merge": {
+        "action": "Chỉ merge khi CI xanh. Merge main sẽ deploy Pages và publish Docker image lên GHCR.",
+        "proof": "GitHub Actions: Deploy Pages và Publish Docker image đều xanh.",
+        "title": "Merge main"
+      },
+      "pr": {
+        "action": "Tạo branch develop/feature, thay đổi nhỏ giao diện hoặc translation, push rồi mở PR vào main.",
+        "proof": "CI checks xanh: lint, Vitest, i18n, build, Docker, Trivy và smoke test.",
+        "title": "Tạo Pull Request"
+      },
+      "slack": {
+        "action": "Chờ Argo hoàn tất. Notification controller gửi kết quả deploy qua webhook Slack.",
+        "proof": "Channel Slack nhận tin deploy thành công hoặc sync thất bại.",
+        "title": "Nhận Slack notification"
+      }
+    },
+    "title": "Tự test luồng deploy từ đầu tới cuối"
+  },
   "footer": "Được xây và deploy cùng GitHub Actions.",
   "interactivePipeline": {
     "caption": "PR được kiểm tra trước; merge main mới kích hoạt CD",
