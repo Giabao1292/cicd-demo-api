@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const milestones = [['github', true], ['ci', true], ['pages', true], ['quality', false], ['release', false]];
-const flowIcons = ['⑂', '⇄', '✓', '↳', '↟', '◉'];
-const flowKeys = ['branch', 'pullRequest', 'ciCheck', 'merge', 'deploy', 'pages'];
+const milestones = [['github', true], ['ci', true], ['pages', true], ['quality', true], ['release', false]];
+const currentPipelineKeys = ['pullRequest', 'quality', 'i18n', 'reactBuild', 'dockerBuild', 'trivy', 'smokeTest', 'mergeMain', 'pagesDeploy', 'ghcrPublish'];
+const pipelineIcons = ['⇄', '✓', '文', '▣', '▦', '⌕', '◉', '↳', '◈', '⬡'];
 
 export default function App() {
   const { t, i18n } = useTranslation();
   const [theme, setTheme] = useState(() => localStorage.getItem('journal-theme') || 'light');
+  const [activePipelineStep, setActivePipelineStep] = useState('pullRequest');
   const done = milestones.filter(([, complete]) => complete).length;
 
   useEffect(() => {
@@ -45,20 +46,36 @@ export default function App() {
 
         <section className="pipeline" aria-labelledby="pipeline-title">
           <div className="section-heading">
-            <div><p className="eyebrow">LIVE ARCHITECTURE</p><h2 id="pipeline-title">{t('pipelineTitle')}</h2></div>
-            <span>{t('pipelineCaption')}</span>
+            <div><p className="eyebrow">LIVE PIPELINE</p><h2 id="pipeline-title">{t('interactivePipeline.title')}</h2></div>
+            <span>{t('interactivePipeline.caption')}</span>
           </div>
-          <div className="pipeline-map">
-            <div className="flow-line" aria-hidden="true"><i /></div>
-            {flowKeys.map((key, index) => (
-              <article className="flow-step" key={key}>
-                <span className="flow-number">0{index + 1}</span>
-                <span className="flow-icon" aria-hidden="true">{flowIcons[index]}</span>
-                <h3>{t(`pipeline.${key}.title`)}</h3>
-                <p>{t(`pipeline.${key}.detail`)}</p>
-              </article>
+          <p className="pipeline-instruction">{t('interactivePipeline.instruction')}</p>
+          <div className="pipeline-phase-labels" aria-hidden="true"><span>{t('interactivePipeline.ciPhase')}</span><span>{t('interactivePipeline.cdPhase')}</span></div>
+          <div className="interactive-pipeline-map">
+            {currentPipelineKeys.map((key, index) => (
+              <button
+                className={`pipeline-node ${activePipelineStep === key ? 'active' : ''} ${index >= 7 ? 'after-merge' : ''}`}
+                key={key}
+                onClick={() => setActivePipelineStep(key)}
+                aria-pressed={activePipelineStep === key}
+              >
+                <span className="pipeline-node-number">{String(index + 1).padStart(2, '0')}</span>
+                <span className="pipeline-node-icon" aria-hidden="true">{pipelineIcons[index]}</span>
+                <span>{t(`interactivePipeline.steps.${key}.title`)}</span>
+              </button>
             ))}
           </div>
+          <article className="pipeline-detail" aria-live="polite">
+            <div className="pipeline-detail-heading">
+              <span className="pipeline-detail-icon" aria-hidden="true">{pipelineIcons[currentPipelineKeys.indexOf(activePipelineStep)]}</span>
+              <div><p className="eyebrow">{t('interactivePipeline.selectedStep')}</p><h3>{t(`interactivePipeline.steps.${activePipelineStep}.title`)}</h3></div>
+            </div>
+            <p>{t(`interactivePipeline.steps.${activePipelineStep}.purpose`)}</p>
+            <div className="pipeline-detail-meta">
+              <p><b>{t('interactivePipeline.triggerLabel')}</b>{t(`interactivePipeline.steps.${activePipelineStep}.trigger`)}</p>
+              <p><b>{t('interactivePipeline.failureLabel')}</b>{t(`interactivePipeline.steps.${activePipelineStep}.failure`)}</p>
+            </div>
+          </article>
           <p className="pipeline-note"><b>{t('pipelineRuleLabel')}</b> {t('pipelineRule')}</p>
         </section>
 
