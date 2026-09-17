@@ -2,6 +2,78 @@
   "completed": "Completed",
   "completedCount": "{{done}} / {{total}} milestones completed",
   "footer": "Built and deployed with GitHub Actions.",
+  "interactivePipeline": {
+    "caption": "The PR is checked first; only a main merge triggers CD",
+    "cdPhase": "AFTER MERGE — CD",
+    "ciPhase": "PULL REQUEST — CI GATE",
+    "failureLabel": "If it fails: ",
+    "instruction": "Select a node to see what it does in the real pipeline.",
+    "selectedStep": "SELECTED STEP",
+    "steps": {
+      "dockerBuild": {
+        "failure": "There is no image to scan or smoke-test; the PR is blocked.",
+        "purpose": "Uses the Dockerfile to package the React build and Nginx into a production image that can run anywhere.",
+        "title": "Docker build",
+        "trigger": "Runs after the React production build succeeds."
+      },
+      "ghcrPublish": {
+        "failure": "The image is not stored in the registry, so a future server has no new version to pull.",
+        "purpose": "Pushes the checked image to GitHub Container Registry with a commit tag and latest, ready for a server or Kubernetes deployment.",
+        "title": "Publish GHCR",
+        "trigger": "Runs in parallel with the Pages deployment after a push to main."
+      },
+      "i18n": {
+        "failure": "A key is missing or JSON is not sorted A→Z; the PR is blocked.",
+        "purpose": "Compares en.json and vi.json for the same schema while enforcing a consistent translation key order.",
+        "title": "I18n validation",
+        "trigger": "Runs in CI after linting and tests."
+      },
+      "mergeMain": {
+        "failure": "The PR cannot merge until required CI checks are green.",
+        "purpose": "GitHub branch rules allow only CI-validated code into main. The merge creates a push that triggers CD.",
+        "title": "Merge main",
+        "trigger": "You press Merge after the PR is green."
+      },
+      "pagesDeploy": {
+        "failure": "GitHub Pages stays on the prior version; main source is not lost.",
+        "purpose": "Builds the React static site, uploads the dist artifact, and publishes a new version to GitHub Pages.",
+        "title": "Deploy Pages",
+        "trigger": "Runs after every push to main."
+      },
+      "pullRequest": {
+        "failure": "Without a PR, branch rules prevent direct updates to main.",
+        "purpose": "Changes from a develop or feature branch enter a PR for GitHub Actions checks before merging.",
+        "title": "Pull request",
+        "trigger": "Open a PR or push another commit to a PR targeting main."
+      },
+      "quality": {
+        "failure": "A lint error, failed unit test, or coverage below 80% makes the PR red.",
+        "purpose": "ESLint catches source issues; Vitest checks i18n logic; coverage proves tests reach important logic.",
+        "title": "Lint · test · coverage",
+        "trigger": "The first CI gate after dependencies are installed."
+      },
+      "reactBuild": {
+        "failure": "Vite cannot create dist, so the PR is blocked before deployment.",
+        "purpose": "Vite packages React into a static production bundle and catches import, syntax, or build configuration issues.",
+        "title": "React production build",
+        "trigger": "Runs after quality and i18n checks."
+      },
+      "smokeTest": {
+        "failure": "The container or Nginx does not return HTTP 200; the PR is blocked.",
+        "purpose": "Runs the image temporarily on localhost:8080 and curls the homepage, proving the built image actually serves the website.",
+        "title": "Container smoke test",
+        "trigger": "Runs only after the Trivy scan passes."
+      },
+      "trivy": {
+        "failure": "A fixable HIGH or CRITICAL CVE is found; the PR is blocked.",
+        "purpose": "Trivy inspects OS packages in Nginx/Alpine and app libraries in the Docker image for known security vulnerabilities.",
+        "title": "Trivy security scan",
+        "trigger": "Runs after the Docker image is built and before the smoke test."
+      }
+    },
+    "title": "How does the current pipeline run?",
+    "triggerLabel": "Trigger: "
+  },
   "intro": "Every completed step gives this project a new change, a new commit, and a newly deployed version.",
   "label": "CI/CD LEARNING JOURNAL",
   "languageSelector": "Choose language",

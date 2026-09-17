@@ -2,6 +2,78 @@
   "completed": "Hoàn thành",
   "completedCount": "{{done}} / {{total}} mốc đã hoàn thành",
   "footer": "Được xây và deploy cùng GitHub Actions.",
+  "interactivePipeline": {
+    "caption": "PR được kiểm tra trước; merge main mới kích hoạt CD",
+    "cdPhase": "SAU KHI MERGE — CD",
+    "ciPhase": "PULL REQUEST — CI GATE",
+    "failureLabel": "Nếu fail: ",
+    "instruction": "Bấm vào từng node để hiểu việc nó làm trong pipeline thật.",
+    "selectedStep": "STEP ĐANG XEM",
+    "steps": {
+      "dockerBuild": {
+        "failure": "Không có image để scan hoặc chạy thử; PR bị chặn.",
+        "purpose": "Dùng Dockerfile để đóng gói React build và Nginx thành một image production có thể chạy ở mọi nơi.",
+        "title": "Docker build",
+        "trigger": "Sau khi React production build thành công."
+      },
+      "ghcrPublish": {
+        "failure": "Image không lên registry; server sau này không có bản mới để pull.",
+        "purpose": "Đẩy image đã được kiểm tra lên GitHub Container Registry với tag theo commit và latest để sẵn sàng deploy server/Kubernetes.",
+        "title": "Publish GHCR",
+        "trigger": "Chạy song song với Pages deploy sau push vào main."
+      },
+      "i18n": {
+        "failure": "Thiếu key hoặc JSON chưa sort A→Z; PR bị chặn.",
+        "purpose": "So sánh en.json và vi.json, bắt cùng schema; đồng thời đảm bảo translation được sắp xếp nhất quán.",
+        "title": "I18n validation",
+        "trigger": "Chạy trong CI sau lint và test."
+      },
+      "mergeMain": {
+        "failure": "Không merge được nếu required check CI chưa xanh.",
+        "purpose": "GitHub branch rule chỉ cho phép code đã qua CI đi vào main. Merge tạo một push mới để kích hoạt CD.",
+        "title": "Merge main",
+        "trigger": "Bạn bấm Merge sau khi PR xanh."
+      },
+      "pagesDeploy": {
+        "failure": "Website GitHub Pages giữ bản cũ; source main không bị mất.",
+        "purpose": "Build React static site, upload dist artifact và xuất bản phiên bản mới lên GitHub Pages.",
+        "title": "Deploy Pages",
+        "trigger": "Chạy sau mỗi push vào main."
+      },
+      "pullRequest": {
+        "failure": "Không có PR thì branch rule không cho cập nhật main trực tiếp.",
+        "purpose": "Thay đổi từ develop/feature branch được đưa vào PR để GitHub Actions kiểm tra trước khi merge.",
+        "title": "Pull request",
+        "trigger": "Mở PR hoặc push thêm commit vào PR hướng tới main."
+      },
+      "quality": {
+        "failure": "Lỗi lint, unit test hoặc coverage dưới 80% làm PR đỏ.",
+        "purpose": "ESLint bắt lỗi source; Vitest kiểm tra logic i18n; coverage chứng minh test đã đi qua phần logic cần thiết.",
+        "title": "Lint · test · coverage",
+        "trigger": "Bước CI đầu tiên sau khi dependencies được cài."
+      },
+      "reactBuild": {
+        "failure": "Vite không tạo được dist; PR bị chặn trước deploy.",
+        "purpose": "Vite đóng gói React thành static production bundle để phát hiện lỗi import, syntax hoặc cấu hình build.",
+        "title": "React production build",
+        "trigger": "Chạy sau quality và i18n checks."
+      },
+      "smokeTest": {
+        "failure": "Container/Nginx không trả HTTP 200; PR bị chặn.",
+        "purpose": "Chạy image tạm ở localhost:8080 rồi curl trang chủ, xác nhận image thực sự phục vụ website chứ không chỉ build xong.",
+        "title": "Container smoke test",
+        "trigger": "Chỉ chạy sau Trivy scan pass."
+      },
+      "trivy": {
+        "failure": "Có CVE HIGH hoặc CRITICAL đã có bản vá; PR bị chặn.",
+        "purpose": "Trivy soi package OS trong Nginx/Alpine và thư viện app trong Docker image để tìm lỗ hổng bảo mật đã biết.",
+        "title": "Trivy security scan",
+        "trigger": "Chạy sau khi Docker image được build và trước smoke test."
+      }
+    },
+    "title": "Pipeline hiện tại chạy như thế nào?",
+    "triggerLabel": "Kích hoạt: "
+  },
   "intro": "Mỗi lần hoàn thành một bước, dự án này nhận thêm một thay đổi, một commit và một bản deploy mới.",
   "label": "NHẬT KÝ HỌC CI/CD",
   "languageSelector": "Chọn ngôn ngữ",
