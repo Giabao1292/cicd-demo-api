@@ -55,6 +55,16 @@ jobs:
       - name: Build Docker image
         run: docker build --tag cicd-learning-journal:${{ github.sha }} .
 
+      - name: Scan Docker image with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: cicd-learning-journal:${{ github.sha }}
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+
       - name: Smoke test Docker container
         run: |
           docker run --detach --name cicd-smoke-test --publish 8080:80 cicd-learning-journal:${{ github.sha }}
