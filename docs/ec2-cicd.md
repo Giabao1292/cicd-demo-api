@@ -73,7 +73,8 @@ After the runner is idle, create a pull request from `feature/ec2-cicd` into
 `main` and merge it. The workflow:
 
 1. Runs lint, unit tests, and the i18n check on a GitHub-hosted runner.
-2. Builds `dist/` and retains it as a GitHub Actions artifact for 14 days.
+2. Builds `dist/` with the `/` base path used by EC2 Nginx, then retains it
+   as a GitHub Actions artifact for 14 days.
 3. Downloads exactly that commit's artifact on EC2.
 4. Copies it to a SHA-named release directory, updates `current`, then reloads
    Nginx after validating its configuration.
