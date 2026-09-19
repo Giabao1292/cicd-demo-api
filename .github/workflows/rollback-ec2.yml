@@ -1,0 +1,61 @@
+name: Roll back frontend on EC2
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: "Commit SHA of an existing EC2 release to restore"
+        required: true
+        type: string
+      confirm_rollback:
+        description: "I understand this immediately changes the live website"
+        required: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-ec2-main
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    name: Restore selected frontend release
+    # Runs on the EC2 instance. It never downloads or builds code: it only
+    # re-points Nginx at a release that is already present on this server.
+    runs-on: [self-hosted, linux, x64, cicd-ec2]
+    steps:
+      - name: Validate the requested release
+        env:
+          RELEASE_SHA: ${{ inputs.release_sha }}
+          CONFIRM_ROLLBACK: ${{ inputs.confirm_rollback }}
+        run: |
+          set -euo pipefail
+          test "$CONFIRM_ROLLBACK" = "true"
+          [[ "$RELEASE_SHA" =~ ^[0-9a-f]{7,64}$ ]]
+
+          release_dir="/var/www/cicd-learning-journal/releases/$RELEASE_SHA"
+          test -d "$release_dir"
+          test -f "$release_dir/index.html"
+
+      - name: Point Nginx at the selected release
+        env:
+          RELEASE_SHA: ${{ inputs.release_sha }}
+        run: |
+          set -euo pipefail
+          release_dir="/var/www/cicd-learning-journal/releases/$RELEASE_SHA"
+          previous_release="$(sudo readlink -f /var/www/cicd-learning-journal/current || true)"
+
+          sudo nginx -t
+          sudo ln -sfn "$release_dir" /var/www/cicd-learning-journal/current
+
+          if ! sudo systemctl reload nginx; then
+            if test -n "$previous_release"; then
+              sudo ln -sfn "$previous_release" /var/www/cicd-learning-journal/current
+              sudo systemctl reload nginx || true
+            fi
+            exit 1
+          fi
+
+          echo "Restored release: $RELEASE_SHA"
