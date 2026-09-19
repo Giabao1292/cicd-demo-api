@@ -36,7 +36,9 @@ jobs:
           npm run i18n:check
 
       - name: Build production bundle
-        run: npm run build
+        # Vite defaults to the GitHub Pages path in vite.config.js. EC2 Nginx
+        # serves this artifact at its domain root instead.
+        run: VITE_BASE_PATH=/ npm run build
 
       - name: Upload deployable artifact
         uses: actions/upload-artifact@v4
