@@ -34,7 +34,8 @@ cd ~/cicd-demo-api
 sudo bash deploy/ec2/bootstrap-artifact.sh
 ```
 
-This installs Nginx. It configures Nginx to serve the `current` symlink below:
+This installs Nginx. On Amazon Linux, it adds the app routes to Nginx's default
+port-80 server, which serves the `current` symlink below:
 
 ```text
 /var/www/cicd-learning-journal/
