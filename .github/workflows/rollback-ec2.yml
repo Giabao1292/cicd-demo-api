@@ -3,8 +3,8 @@ name: Roll back frontend on EC2
 on:
   workflow_dispatch:
     inputs:
-      release_sha:
-        description: "Commit SHA of an existing EC2 release to restore"
+      release_id:
+        description: "Version (for example v1.0.1) or SHA of an existing EC2 release"
         required: true
         type: string
       confirm_rollback:
@@ -28,23 +28,23 @@ jobs:
     steps:
       - name: Validate the requested release
         env:
-          RELEASE_SHA: ${{ inputs.release_sha }}
+          RELEASE_ID: ${{ inputs.release_id }}
           CONFIRM_ROLLBACK: ${{ inputs.confirm_rollback }}
         run: |
           set -euo pipefail
           test "$CONFIRM_ROLLBACK" = "true"
-          [[ "$RELEASE_SHA" =~ ^[0-9a-f]{7,64}$ ]]
+          [[ "$RELEASE_ID" =~ ^([0-9a-f]{7,64}|v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?)$ ]]
 
-          release_dir="/var/www/cicd-learning-journal/releases/$RELEASE_SHA"
+          release_dir="/var/www/cicd-learning-journal/releases/$RELEASE_ID"
           test -d "$release_dir"
           test -f "$release_dir/index.html"
 
       - name: Point Nginx at the selected release
         env:
-          RELEASE_SHA: ${{ inputs.release_sha }}
+          RELEASE_ID: ${{ inputs.release_id }}
         run: |
           set -euo pipefail
-          release_dir="/var/www/cicd-learning-journal/releases/$RELEASE_SHA"
+          release_dir="/var/www/cicd-learning-journal/releases/$RELEASE_ID"
           previous_release="$(sudo readlink -f /var/www/cicd-learning-journal/current || true)"
 
           sudo nginx -t
@@ -58,4 +58,4 @@ jobs:
             exit 1
           fi
 
-          echo "Restored release: $RELEASE_SHA"
+          echo "Restored release: $RELEASE_ID"

@@ -11,6 +11,10 @@ push to main
   -> GitHub-hosted runner: test, lint, build dist/, upload artifact
   -> EC2 self-hosted runner: download artifact, create release, update symlink
   -> Nginx: serve the new release
+
+push tag v1.0.1
+  -> same checks and build
+  -> EC2 release is named v1.0.1 and records its exact commit SHA
 ```
 
 ## Security model
@@ -84,14 +88,24 @@ Open `http://EC2_PUBLIC_IP/` to verify the site.
 ## Roll back
 
 Use **Actions** > **Roll back frontend on EC2** > **Run workflow**. Enter the
-SHA of a release already installed on EC2 and tick the confirmation box. The
-workflow validates that the release exists and contains `index.html`, then
-updates the `current` symlink and reloads Nginx. It does not rebuild or
-download the application.
+version of a release already installed on EC2 (for example `v1.0.1`) and tick
+the confirmation box. SHA-named releases created before versioning are still
+supported. The workflow validates that the release exists and contains
+`index.html`, then updates the `current` symlink and reloads Nginx. It does not
+rebuild or download the application.
 
-To find a SHA without using the terminal, open a successful deployment run in
-GitHub Actions. Its artifact is named `frontend-dist-<SHA>`, and the deployment
-log also identifies the commit. Only releases still present under
+## Create a versioned release
+
+For an intentional production release, create a GitHub Release and create a
+new tag such as `v1.0.1` for the selected `main` commit. Pushing that tag
+starts the deployment workflow. It stores the frontend in
+`releases/v1.0.1/`, plus `COMMIT_SHA` so the version remains traceable to the
+exact source commit.
+
+Do not move or reuse a published version tag. Make a new version for every
+new release: `v1.0.2`, then `v1.0.3`, and so on.
+
+Only releases still present under
 `/var/www/cicd-learning-journal/releases` can be restored.
 
 For a break-glass emergency, an SSM session can still list releases and change

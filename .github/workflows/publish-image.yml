@@ -3,6 +3,9 @@ name: Deploy frontend artifact to EC2
 on:
   push:
     branches: [main]
+    # A version tag is a deliberate production release. For example, creating
+    # v1.0.1 deploys an EC2 release named v1.0.1 rather than only a SHA.
+    tags: ["v*"]
   workflow_dispatch:
 
 permissions:
@@ -63,9 +66,26 @@ jobs:
 
       - name: Atomically point Nginx at the new release
         run: |
-          release_dir="/var/www/cicd-learning-journal/releases/${GITHUB_SHA}"
+          set -euo pipefail
+
+          if test "$GITHUB_REF_TYPE" = "tag"; then
+            release_id="$GITHUB_REF_NAME"
+            # Keep release directory names safe and predictable. This accepts
+            # versions such as v1.0.1 and v1.2.0-rc.1.
+            [[ "$release_id" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]
+          else
+            release_id="$GITHUB_SHA"
+          fi
+
+          release_dir="/var/www/cicd-learning-journal/releases/$release_id"
+          if test "$GITHUB_REF_TYPE" = "tag" && test -e "$release_dir"; then
+            echo "Refusing to overwrite existing versioned release: $release_id" >&2
+            exit 1
+          fi
           sudo install -d -m 0755 "$release_dir"
           sudo cp -a artifact/. "$release_dir/"
+          printf '%s\n' "$GITHUB_SHA" | sudo tee "$release_dir/COMMIT_SHA" >/dev/null
+          printf '%s\n' "$release_id" | sudo tee "$release_dir/RELEASE_ID" >/dev/null
           sudo ln -sfn "$release_dir" /var/www/cicd-learning-journal/current
           sudo nginx -t
           sudo systemctl reload nginx
