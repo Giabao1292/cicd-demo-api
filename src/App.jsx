@@ -1,130 +1,34 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { failureCases, flows } from './pipelineModel';
 
-const milestones = [['github', true], ['ci', true], ['pages', true], ['quality', true], ['release', true]];
-const currentPipelineKeys = ['pullRequest', 'quality', 'i18n', 'reactBuild', 'dockerBuild', 'trivy', 'smokeTest', 'mergeMain', 'pagesDeploy', 'ghcrPublish'];
-const pipelineIcons = ['⇄', '✓', '文', '▣', '▦', '⌕', '◉', '↳', '◈', '⬡'];
-const deploymentTestKeys = ['pr', 'merge', 'image', 'gitops', 'argo', 'slack'];
+function Inspector({ node, mode }) {
+  return <aside className="inspector" aria-live="polite">
+    <p className={`type ${node.kind}`}>{node.kind === 'action' ? '◆ ACTION — một việc được thực hiện' : '● OBJECT — một thứ được tạo, lưu hoặc chạy'}</p>
+    <h3><span>{node.icon}</span>{node.title}</h3><p className="kicker">{node.kicker}</p>
+    <p className="why"><b>{mode === 'beginner' ? 'Nó là gì?' : 'Tại sao cần?'}</b>{mode === 'beginner' ? node.short : node.why}</p>
+    <dl><div><dt>Input</dt><dd>{node.input}</dd></div><div><dt>Output</dt><dd>{node.output}</dd></div><div><dt>Ai dùng/thực hiện?</dt><dd>{node.owner}</dd></div><div><dt>Tương đương</dt><dd>{node.alternatives}</dd></div></dl>
+    <div className="remember"><b>NHỚ ĐIỀU NÀY</b>{node.remember}</div>
+  </aside>;
+}
 
 export default function App() {
-  const { t, i18n } = useTranslation();
-  const [theme, setTheme] = useState(() => localStorage.getItem('journal-theme') || 'light');
-  const [activePipelineStep, setActivePipelineStep] = useState('pullRequest');
-  const done = milestones.filter(([, complete]) => complete).length;
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem('journal-theme', theme);
-  }, [theme]);
-
-  function changeLanguage(language) {
-    i18n.changeLanguage(language);
-    localStorage.setItem('journal-language', language);
-  }
-
-  return (
-    <div className="shell">
-      <header>
-        <a className="brand" href="#top">CICD<span>•</span></a>
-        <div className="controls">
-          <div className="languages" aria-label={t('languageSelector')}>
-            <button className={i18n.language === 'vi' ? 'active' : ''} onClick={() => changeLanguage('vi')}>VI</button>
-            <button className={i18n.language === 'en' ? 'active' : ''} onClick={() => changeLanguage('en')}>EN</button>
-          </div>
-          <button className="theme-toggle" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label={t('themeToggle')} title={t('themeToggle')}>
-            <span aria-hidden="true">{theme === 'light' ? '☾' : '☀'}</span>
-          </button>
-        </div>
-      </header>
-
-      <main id="top">
-        <section className="hero">
-          <p className="eyebrow">{t('label')}</p>
-          <h1>{t('titleA')} <em>{t('titleB')}</em></h1>
-          <p className="intro">{t('intro')}</p>
-          <div className="live"><i /> {t('live')}</div>
-        </section>
-
-        <section className="pipeline" aria-labelledby="pipeline-title">
-          <div className="section-heading">
-            <div><p className="eyebrow">LIVE PIPELINE</p><h2 id="pipeline-title">{t('interactivePipeline.title')}</h2></div>
-            <span>{t('interactivePipeline.caption')}</span>
-          </div>
-          <p className="pipeline-instruction">{t('interactivePipeline.instruction')}</p>
-          <div className="pipeline-phase-labels" aria-hidden="true"><span>{t('interactivePipeline.ciPhase')}</span><span>{t('interactivePipeline.cdPhase')}</span></div>
-          <div className="interactive-pipeline-map">
-            {currentPipelineKeys.map((key, index) => (
-              <button
-                className={`pipeline-node ${activePipelineStep === key ? 'active' : ''} ${index >= 7 ? 'after-merge' : ''}`}
-                key={key}
-                onClick={() => setActivePipelineStep(key)}
-                aria-pressed={activePipelineStep === key}
-              >
-                <span className="pipeline-node-number">{String(index + 1).padStart(2, '0')}</span>
-                <span className="pipeline-node-icon" aria-hidden="true">{pipelineIcons[index]}</span>
-                <span>{t(`interactivePipeline.steps.${key}.title`)}</span>
-              </button>
-            ))}
-          </div>
-          <article className="pipeline-detail" aria-live="polite">
-            <div className="pipeline-detail-heading">
-              <span className="pipeline-detail-icon" aria-hidden="true">{pipelineIcons[currentPipelineKeys.indexOf(activePipelineStep)]}</span>
-              <div><p className="eyebrow">{t('interactivePipeline.selectedStep')}</p><h3>{t(`interactivePipeline.steps.${activePipelineStep}.title`)}</h3></div>
-            </div>
-            <p>{t(`interactivePipeline.steps.${activePipelineStep}.purpose`)}</p>
-            <div className="pipeline-detail-meta">
-              <p><b>{t('interactivePipeline.triggerLabel')}</b>{t(`interactivePipeline.steps.${activePipelineStep}.trigger`)}</p>
-              <p><b>{t('interactivePipeline.failureLabel')}</b>{t(`interactivePipeline.steps.${activePipelineStep}.failure`)}</p>
-            </div>
-          </article>
-          <p className="pipeline-note"><b>{t('pipelineRuleLabel')}</b> {t('pipelineRule')}</p>
-        </section>
-
-        <section className="deployment-guide" aria-labelledby="deployment-guide-title">
-          <div className="section-heading">
-            <div><p className="eyebrow">HANDS-ON RUNBOOK</p><h2 id="deployment-guide-title">{t('deploymentGuide.title')}</h2></div>
-            <span>{t('deploymentGuide.caption')}</span>
-          </div>
-          <p className="deployment-guide-intro">{t('deploymentGuide.intro')}</p>
-          <div className="test-flow">
-            {deploymentTestKeys.map((key, index) => (
-              <article className="test-step" key={key}>
-                <span className="test-step-number">{String(index + 1).padStart(2, '0')}</span>
-                <h3>{t(`deploymentGuide.steps.${key}.title`)}</h3>
-                <p>{t(`deploymentGuide.steps.${key}.action`)}</p>
-                <small>{t(`deploymentGuide.steps.${key}.proof`)}</small>
-              </article>
-            ))}
-          </div>
-          <article className="truth-panel">
-            <div><p className="eyebrow">{t('deploymentGuide.currentStateLabel')}</p><h3>{t('deploymentGuide.currentStateTitle')}</h3></div>
-            <p>{t('deploymentGuide.currentState')}</p>
-          </article>
-        </section>
-
-        <section className="roadmap" aria-labelledby="roadmap-title">
-          <div className="section-heading">
-            <div><p className="eyebrow">01 — 05</p><h2 id="roadmap-title">{t('roadmap')}</h2></div>
-            <span>{t('completedCount', { done, total: milestones.length })}</span>
-          </div>
-          <div className="cards">
-            {milestones.map(([key, complete], index) => (
-              <article className={`card ${complete ? 'complete' : ''}`} key={key}>
-                <div className="card-top"><span>0{index + 1}</span><b>{complete ? t('completed') : t('planned')}</b></div>
-                <h3>{t(`steps.${key}.title`)}</h3>
-                <p>{t(`steps.${key}.detail`)}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <aside>
-          <p className="eyebrow">NOTE TO SELF</p>
-          <h2>{t('principleTitle')}</h2>
-          <p>{t('principle')}</p>
-        </aside>
-      </main>
-      <footer>{t('footer')} <span>{new Date().getFullYear()}</span></footer>
-    </div>
-  );
+  const { i18n, t } = useTranslation();
+  const [theme, setTheme] = useState(() => localStorage.getItem('journal-theme') || 'dark');
+  const [flowId, setFlowId] = useState('artifact'); const [activeId, setActiveId] = useState('artifact');
+  const [step, setStep] = useState(0); const [mode, setMode] = useState('beginner'); const [failure, setFailure] = useState('test');
+  const flow = flows[flowId]; const active = useMemo(() => flow.nodes.find((n) => n.id === activeId) || flow.nodes[0], [flow, activeId]);
+  useEffect(() => { document.documentElement.dataset.theme = theme; localStorage.setItem('journal-theme', theme); }, [theme]);
+  function chooseFlow(id) { setFlowId(id); setActiveId(flows[id].nodes[0].id); setStep(0); }
+  function move(delta) { const next = Math.max(0, Math.min(flow.nodes.length - 1, step + delta)); setStep(next); setActiveId(flow.nodes[next].id); }
+  const currentFailure = failureCases.find((item) => item.id === failure);
+  return <div className="app-shell"><header><a className="brand" href="#top">pipeline<span>lab</span></a><nav><a href="#visualizer">Visualizer</a><a href="#mental">Mental model</a><a href="#failure">Failure lab</a></nav><div className="controls"><button onClick={() => setMode(mode === 'beginner' ? 'engineering' : 'beginner')}>{mode === 'beginner' ? 'Beginner mode' : 'Engineering mode'}</button><button onClick={() => i18n.changeLanguage(i18n.language === 'vi' ? 'en' : 'vi')}>{i18n.language === 'vi' ? 'VI' : 'EN'}</button><button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} aria-label={t('themeToggle')}>{theme === 'dark' ? '☀' : '☾'}</button></div></header><main id="top">
+    <section className="hero"><p className="eyebrow">INTERACTIVE CI/CD LEARNING SYSTEM</p><h1>Đừng học tên tool.<br /><em>Hãy nhìn dòng chảy.</em></h1><p>Chọn một pipeline, bấm vào node, rồi lần theo chính dữ liệu đang di chuyển: source code, artifact, Docker image hay request.</p><div className="rule"><b>Luật cốt lõi</b> Build once → deploy the exact same package → rollback by version.</div></section>
+    <section className="flow-switch"><div><p className="eyebrow">CHỌN PIPELINE</p><h2>Một abstraction, hai cách đóng gói.</h2></div><div className="switches">{Object.values(flows).map((item) => <button key={item.id} className={flowId === item.id ? 'selected' : ''} onClick={() => chooseFlow(item.id)}><b>{item.label}</b><span>{item.subtitle}</span></button>)}</div></section>
+    <section id="visualizer" className="visualizer"><div className="section-head"><div><p className="eyebrow">PIPELINE VISUALIZER</p><h2>{flow.label}</h2><p>{flow.subtitle}. Bấm node để inspect.</p></div><div className="legend"><span>◆ action</span><span>● object</span><span>→ data flow</span></div></div><div className="boundary"><b>CI — chứng minh code có thể phát hành</b><i /><b>CD — phân phối package tới runtime</b></div><div className="diagram">{flow.nodes.map((item, index) => <div className="unit" key={item.id}>{index > 0 && <div className="edge"><small>{flow.edges[index - 1]}</small>→</div>}<button className={`node ${item.kind} ${activeId === item.id ? 'active' : ''}`} onClick={() => { setActiveId(item.id); setStep(index); }}><small>{item.kind === 'action' ? 'ACTION' : 'OBJECT'}</small><i>{item.icon}</i><strong>{item.title}</strong><span>{item.short}</span></button></div>)}</div><Inspector node={active} mode={mode} /></section>
+    <section id="mental" className="explain"><div><p className="eyebrow">EXPLAIN THIS FLOW</p><h2>{flow.mentalModel}</h2><p>Đọc mọi pipeline bằng 5 câu: Code ở đâu? Package là gì? Nó lưu ở đâu? Ai lấy nó? Nó chạy ở đâu?</p><div className="pager"><button onClick={() => move(-1)} disabled={step === 0}>← Previous</button><b>STEP {step + 1} / {flow.nodes.length}</b><button onClick={() => move(1)} disabled={step === flow.nodes.length - 1}>Next →</button></div></div><article className="step"><p>{flow.nodes[step].kicker}</p><h3>{flow.nodes[step].title}</h3><b>{flow.nodes[step].input}</b><i>↓ creates / moves ↓</i><strong>{flow.nodes[step].output}</strong><small>{flow.nodes[step].why}</small></article></section>
+    <section className="promote"><div><p className="eyebrow">BUILD ONCE, DEPLOY MANY</p><h2>Một version đi qua environment.</h2><p>Dev, Staging, Production khác cấu hình và quyền; lý tưởng là không khác package. Cùng artifact/image được promote, không build lại.</p></div><div className="envs"><div><b>PACKAGE</b><span>{flow.package}</span></div><i>→</i><div><b>DEV</b><span>automatic</span></div><i>→</i><div><b>STAGING</b><span>verify</span></div><i>→</i><div><b>PRODUCTION</b><span>approve</span></div></div></section>
+    <section id="failure" className="failure"><p className="eyebrow">FAILURE LAB</p><h2>Pipeline dừng ở đâu?</h2><p>Failure không phải lúc nào cũng làm production hỏng.</p><div className="failure-layout"><div className="tabs">{failureCases.map((item) => <button key={item.id} className={failure === item.id ? `active ${item.color}` : ''} onClick={() => setFailure(item.id)}>{item.title}</button>)}</div><article className={`failure-detail ${currentFailure.color}`}><p>PIPELINE STOPS AT</p><h3>{currentFailure.stop}</h3><dl><div><dt>Package</dt><dd>{currentFailure.result}</dd></div><div><dt>Production</dt><dd>{currentFailure.production}</dd></div></dl><b>CI fail thường bảo vệ production. CD fail cần strategy deploy/rollback.</b></article></div></section>
+    <section className="abstraction"><p className="eyebrow">ABSTRACTION → IMPLEMENTATIONS</p><h2>Đừng học từng tool như kiến thức độc lập.</h2><div>{[['CI/CD orchestrator','GitHub Actions · GitLab CI · Jenkins · Azure Pipelines','Đều điều phối jobs và steps.'],['Container registry','AWS ECR · Docker Hub · GHCR · Azure ACR','Đều lưu và phân phối Docker image.'],['Deployment target','VM + Nginx · Docker host · ECS · Kubernetes','Đều nhận package và phục vụ runtime.']].map(([a,b,c]) => <article key={a}><b>{a}</b><span>{b}</span><small>{c}</small></article>)}</div></section>
+  </main><footer><span>Pipeline Lab · học system, không học thuộc tool</span><span>Artifact → EC2 là flow thật của lab</span></footer></div>;
 }
