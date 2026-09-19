@@ -83,18 +83,19 @@ Open `http://EC2_PUBLIC_IP/` to verify the site.
 
 ## Roll back
 
-List installed releases:
+Use **Actions** > **Roll back frontend on EC2** > **Run workflow**. Enter the
+SHA of a release already installed on EC2 and tick the confirmation box. The
+workflow validates that the release exists and contains `index.html`, then
+updates the `current` symlink and reloads Nginx. It does not rebuild or
+download the application.
 
-```sh
-ls -l /var/www/cicd-learning-journal/releases
-```
+To find a SHA without using the terminal, open a successful deployment run in
+GitHub Actions. Its artifact is named `frontend-dist-<SHA>`, and the deployment
+log also identifies the commit. Only releases still present under
+`/var/www/cicd-learning-journal/releases` can be restored.
 
-Point `current` at a previous commit SHA, then reload Nginx:
-
-```sh
-sudo ln -sfn /var/www/cicd-learning-journal/releases/PREVIOUS_SHA /var/www/cicd-learning-journal/current
-sudo systemctl reload nginx
-```
+For a break-glass emergency, an SSM session can still list releases and change
+the symlink manually, but the normal rollback path is the GitHub Actions UI.
 
 ## Clean up
 
